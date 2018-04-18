@@ -1,33 +1,74 @@
 import React, { Component } from 'react';
 import { KTopbar } from '../libs/keact/Kui'
 import { ShowToast } from '../libs/keact/Notification'
+import { userService } from '../Services'
 
-const socket = window.io.connect('http://localhost:9000')
-let connected = false
-
-socket.on('connect', function () {
-  socket.emit('login', { username: 'ken', password: '123456' })
-});
-
-// 用户连接后客户端接收服务端
-socket.on('loged', function (data) {
-  console.log('from server:', data)
-  connected = true
-  ShowToast(data.msg, 1500)
-});
+let socket = null
 
 class Chat extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      msg: ''
+      chatType: '',           // single | group
+      msg: '',
+      messages: [],
+      me: {
+        id: localStorage.getItem('id'),
+        username: localStorage.getItem('username'),
+        password: localStorage.getItem('password'),
+        avatar: localStorage.getItem('avatar')
+      },
+      friend: {}
     }
     this.sendMsg = this.sendMsg.bind(this)
     this.changeValue = this.changeValue.bind(this)
   }
 
+  getUser (id) {
+    userService.getUser(id, (res) => {
+      if (res.status) {
+        this.setState({
+          friend: res.data
+        })
+      }
+    })
+  }
+
   componentDidMount () {
-    console.log('mounted')
+    this.setState({
+      chatType: this.props.match.params.type
+    })
+
+    if (!this.state.me.username || !this.state.me.password) {
+      this.props.history.push('/login')
+      return
+    }
+
+    // 获取朋友的信息
+    this.getUser(this.props.match.params.id)
+
+    // 连接socket服务器
+    socket = window.io.connect('http://localhost:9000')
+
+    // 用户登录
+    socket.on('connect', () => {
+      socket.emit('login', { username: this.state.me.username, password: this.state.me.password })
+    });
+
+    // 用户连接后客户端接收服务端
+    // 用户登录成功
+    socket.on('loged', (data) => {
+      console.log(`${this.state.me.username} 用户登录成功`)
+    });
+    // 用户登录失败
+    socket.on('logfail', function (data) {
+      console.log('用户登录失败:', data)
+    });
+
+    // 接收文本信息
+    socket.on('receiveTextMsg', (data) => {
+      console.log('接收到文本信息：', data)
+    })
   }
 
   changeValue (e) {
@@ -38,7 +79,29 @@ class Chat extends Component {
 
   sendMsg () {
     console.log('send:', this.state.msg)
-    socket.emit('sendText', { data: this.state.msg })
+
+    // 发送文本消息
+    socket.emit('sendText', {
+      data: this.state.msg,
+      type: 'text',
+      fromUser: this.state.me.id,
+      from: this.state.me.username,
+      toUser: this.state.friend.id,
+      to: this.state.friend.username
+    })
+
+    let _messages = this.state.messages
+    _messages.push({
+      data: this.state.msg,
+      type: 'text',
+      fromUser: this.state.me.id,
+      from: this.state.me.username,
+      toUser: this.state.friend.id,
+      to: this.state.friend.username
+    })
+    this.setState({
+      messages: _messages
+    })
   }
 
   render() {
@@ -46,7 +109,19 @@ class Chat extends Component {
       <div className="Container">
         <KTopbar back title="聊天" bgcolor="#efefef" color="#666"></KTopbar>
         <div className="Main Chat">
-          Chat Page
+          <ul>
+            {this.state.messages.map((item, index) => {
+              return (
+                <li key={index}>
+                  <div className={'flex-r flex-s-e msgItem ' + (item.from === this.state.friend.username ? 'friend' : ' ') + (item.from === this.state.me.username ? 'me' : '')}>
+                    {item.from === this.state.friend.username && <img className="avatar" src={this.state.friend.avatar} alt={this.state.friend.username} />}
+                    <p>{item.data}</p>
+                    {item.from === this.state.me.username && <img className="avatar" src={this.state.me.avatar} alt={this.state.me.username} />}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
         </div>
         <div className="flex-r flex-c-b ChatInput">
           <aside>

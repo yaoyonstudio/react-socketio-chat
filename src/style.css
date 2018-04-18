@@ -61,3 +61,135 @@
     color: #fff;
     border: none;
     border-radius: .04rem; }
+
+/* login page */
+.Login {
+  height: 100%;
+  background: rgba(19, 35, 47, 0.9); }
+  .Login a {
+    text-decoration: none;
+    color: #1ab188;
+    transition: .5s ease; }
+    .Login a:hover {
+      color: #179b77; }
+  .Login .form {
+    padding: 40px; }
+  .Login .tab-group {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px 0; }
+    .Login .tab-group:after {
+      content: "";
+      display: table;
+      clear: both; }
+    .Login .tab-group li a {
+      display: block;
+      text-decoration: none;
+      padding: 15px;
+      background: rgba(160, 179, 176, 0.25);
+      color: #a0b3b0;
+      font-size: 20px;
+      float: left;
+      width: 50%;
+      text-align: center;
+      cursor: pointer;
+      transition: .5s ease; }
+      .Login .tab-group li a:hover {
+        background: #179b77;
+        color: #ffffff; }
+    .Login .tab-group .active a {
+      background: #1ab188;
+      color: #ffffff; }
+  .Login h2 {
+    text-align: center;
+    color: #ffffff;
+    font-weight: 300;
+    margin: 0 0 40px; }
+  .Login label {
+    position: absolute;
+    transform: translateY(6px);
+    left: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.25s ease;
+    -webkit-backface-visibility: hidden;
+    pointer-events: none;
+    font-size: 22px; }
+    .Login label .req {
+      margin: 2px;
+      color: #1ab188; }
+  .Login label.active {
+    transform: translateY(50px);
+    left: 2px;
+    font-size: 14px; }
+    .Login label.active .req {
+      opacity: 0; }
+  .Login label.highlight {
+    color: #ffffff; }
+  .Login input, .Login textarea {
+    font-size: 22px;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 5px 10px;
+    background: none;
+    background-image: none;
+    border: 1px solid #a0b3b0;
+    color: #ffffff;
+    border-radius: 0;
+    transition: border-color .25s ease, box-shadow .25s ease; }
+    .Login input:focus, .Login textarea:focus {
+      outline: 0;
+      border-color: #1ab188; }
+  .Login textarea {
+    border: 2px solid #a0b3b0;
+    resize: vertical; }
+  .Login .field-wrap {
+    position: relative;
+    margin-bottom: 40px; }
+  .Login .top-row:after {
+    content: "";
+    display: table;
+    clear: both; }
+  .Login .top-row > div {
+    float: left;
+    width: 48%;
+    margin-right: 4%; }
+    .Login .top-row > div:last-child {
+      margin: 0; }
+  .Login .button {
+    border: 0;
+    outline: none;
+    border-radius: 0;
+    padding: 15px 0;
+    font-size: .2rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    background: #1ab188;
+    color: #ffffff;
+    transition: all 0.5s ease;
+    -webkit-appearance: none; }
+  .Login .button-block {
+    display: block;
+    width: 100%; }
+  .Login .forgot {
+    margin-top: -20px;
+    text-align: right; }
+  .Login .disabled {
+    background-color: #999; }
+
+.userItem {
+  border-bottom: 1px solid #eee;
+  padding: .12rem; }
+  .userItem img {
+    width: .5rem;
+    margin-right: .16rem; }
+  .userItem p {
+    color: #666;
+    font-size: .16rem; }
+
+.msgItem {
+  padding: .2rem; }
+  .msgItem .avatar {
+    width: .3rem;
+    height: .3rem; }
