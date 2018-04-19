@@ -54,7 +54,7 @@ class Login extends Component {
         localStorage.setItem('username', res.data.username)
         localStorage.setItem('password', res.data.password)
         localStorage.setItem('avatar', res.data.avatar)
-        localStorage.setItem('id', res.data.id)
+        localStorage.setItem('_id', res.data._id)
         this.props.history.push('/')
       }
     })

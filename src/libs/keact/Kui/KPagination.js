@@ -44,7 +44,7 @@ class KPagination extends Component {
     }
     
     const next = () => {
-      if (this.props.page == this.pageCount) {
+      if (this.props.page === this.pageCount) {
         return
       } else {
         this.props.href(this.props.page + 1)
@@ -124,13 +124,13 @@ class KPagination extends Component {
     return (
       <Div>
         <ul>
-          <li onClick={() => prev()} page={this.currentPage == 1 ? '' : this.currentPage - 1} className={'prev ' + (this.currentPage == 1 ? 'disabled' : '')}>{this.props.prev ? this.props.prev : ' < '}</li>
+          <li onClick={() => prev()} page={this.currentPage === 1 ? '' : this.currentPage - 1} className={'prev ' + (this.currentPage === 1 ? 'disabled' : '')}>{this.props.prev ? this.props.prev : ' < '}</li>
           {this.pageItems.map((item, index) => {
             return (
-              <li key={index} className={this.props.page == item ? 'current' : ''}><a page={item} onClick={this.props.href}>{item}</a></li>
+              <li key={index} className={this.props.page === item ? 'current' : ''}><a page={item} onClick={this.props.href}>{item}</a></li>
             )
           })}
-          <li onClick={() => next()} page={this.currentPage == this.pageCount ? '' : this.currentPage + 1} className={'next ' + (this.currentPage == this.pageCount ? 'disabled' : '')}>{this.props.next ? this.props.next : ' > '}</li>
+          <li onClick={() => next()} page={this.currentPage === this.pageCount ? '' : this.currentPage + 1} className={'next ' + (this.currentPage === this.pageCount ? 'disabled' : '')}>{this.props.next ? this.props.next : ' > '}</li>
         </ul>
       </Div>
     );

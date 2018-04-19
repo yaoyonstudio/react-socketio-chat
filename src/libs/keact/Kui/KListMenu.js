@@ -15,7 +15,7 @@ const groupBy = (arr, group) => {
     } else {  
       for (let j = 0, k = dest.length; j < k; j++) {  
         let dj = dest[j]
-        if (dj[group] == ai[group]) {  
+        if (dj[group] === ai[group]) {  
           dj.data.push(ai)
           break
         }  
@@ -25,13 +25,13 @@ const groupBy = (arr, group) => {
   return dest
 }
 
-const arraySort = (arr, group) => {
-  return arr.sort((a, b) => {
-    let v1 = a[group]
-    let v2 = b[group]
-    return v1 - v2
-  })
-}
+// const arraySort = (arr, group) => {
+//   return arr.sort((a, b) => {
+//     let v1 = a[group]
+//     let v2 = b[group]
+//     return v1 - v2
+//   })
+// }
 
 
 class KListMenu extends Component {

@@ -13,7 +13,7 @@ class Friends extends Component {
 
   hrefLink (user) {
     console.log(this.props)
-    this.props.history.push(`/chat/single/${user.id}`)
+    this.props.history.push(`/chat/single/${user._id}`)
   }
 
   componentDidMount () {
