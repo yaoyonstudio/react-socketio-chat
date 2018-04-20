@@ -180,7 +180,8 @@
 
 .userItem {
   border-bottom: 1px solid #eee;
-  padding: .12rem; }
+  padding: .12rem;
+  height: .75rem; }
   .userItem img {
     width: .5rem;
     margin-right: .16rem; }
@@ -230,3 +231,23 @@
   position: absolute;
   top: .08rem;
   left: -.05rem; }
+
+.Friends {
+  padding-top: .44rem; }
+
+.userIcon {
+  position: absolute; }
+
+.usersIcon {
+  right: .1rem;
+  top: .11rem; }
+  .usersIcon img {
+    width: .22rem;
+    height: .22rem; }
+
+.addUserIcon {
+  top: .1rem;
+  right: .36rem; }
+  .addUserIcon img {
+    width: .24rem;
+    height: .24rem; }

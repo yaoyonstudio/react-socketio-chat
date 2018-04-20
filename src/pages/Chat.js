@@ -74,6 +74,15 @@ class Chat extends Component {
         messages: _messages
       })
     })
+
+    // 接收未读信息
+    socket.on('unreadMsg', (data) => {
+      let _messages = this.state.messages
+      _messages = _messages.concat(data)
+      this.setState({
+        messages: _messages
+      })
+    })
   }
 
   changeValue (e) {

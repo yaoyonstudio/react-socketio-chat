@@ -26,7 +26,7 @@ class KTopbar extends Component {
         margin: 0;
         padding: 0;
         text-align: center;
-        font-size: 20px;
+        font-size: 16px;
         line-height: 44px;
       }
       .backIcon {

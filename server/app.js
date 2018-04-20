@@ -8,14 +8,8 @@ const db = mongoose.connect("mongodb://localhost/react_socket");
 
 const userRouter = require('./routes/userRoutes')
 const User = require('./models/userModel')
+const msgControllers = require('./controllers/msgControllers')
 
-const users = [
-  {id: 1, username: 'ken', password: '123456', avatar: 'https://jkxg.tigonetwork.com/img/demo/icon1.png'},
-  {id: 2, username: 'yaoyon', password: '123456', avatar: 'https://jkxg.tigonetwork.com/img/demo/icon2.png'},
-  {id: 3, username: 'kenny', password: '123456', avatar: 'https://jkxg.tigonetwork.com/img/demo/icon3.png'},
-  {id: 4, username: 'yaoyonstudio', password: '123456', avatar: 'https://jkxg.tigonetwork.com/img/demo/icon1.png'},
-  {id: 5, username: 'lion', password: '123456', avatar: 'https://jkxg.tigonetwork.com/img/demo/icon4.png'}
-]
 
 app.all('/*', function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -53,6 +47,15 @@ io.on('connection', function (socket) {
       }, (err, user) => {
         if (user) {
           socket.emit('loged', { msg: `您好，${data.username}您当前已登录成功!`})
+          
+          // 如果该登录用户有未读信息
+          msgControllers.getUnreadMsg(user._id.toString(), (msgs) => {
+            if (msgs.length) {
+              socket.emit('unreadMsg', msgs)
+              // 将未读信息发回到客户端后更新数据库中的未读信息为已读isRead = 1
+              msgControllers.updateReadMsg(user._id.toString())
+            }
+          })
 
           if (onlineUsers.length) {
             let _index = undefined
@@ -107,14 +110,22 @@ io.on('connection', function (socket) {
         toUser: msg.toUser,
         to: msg.to
       }
+      console.log('---------------')
       // console.log('toUser2:', _toUser)
       // console.log('sockets:', io.sockets.sockets)
       // console.log('toUser:', io.sockets.sockets[_toUser.sid])
       if (io.sockets.sockets[_toUser.sid]) {
+        // 将消息插入到数据库
+        msgControllers.insertMsg(_msg)
+        // 响应给指定聊天用户
         io.sockets.sockets[_toUser.sid].emit('receiveTextMsg', _msg)
-      } else {
-        console.log('用户离线中')
       }
+    } else {
+      console.log('用户离线中')
+      // 将消息插入到数据库
+      let insert_msg = msg
+      insert_msg.isRead = 0
+      msgControllers.insertMsg(insert_msg)
     }
   })
 

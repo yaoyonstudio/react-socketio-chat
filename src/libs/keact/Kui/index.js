@@ -1,4 +1,5 @@
 import KButton from './KButton'
+import KFixedBtn from './KFixedBtn'
 import KTopbar from './KTopbar'
 import KTitleHeader from './KTitleHeader'
 import KTabs from './KTabs'
@@ -15,6 +16,7 @@ import KInfiniteScroll from './KInfiniteScroll/KInfiniteScroll'
 
 export { 
   KButton,
+  KFixedBtn,
   KTopbar,
   KTitleHeader,
   KTabs,

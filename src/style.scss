@@ -259,6 +259,7 @@ $br: 4px;
 .userItem {
   border-bottom: 1px solid #eee;
   padding: .12rem;
+  height: .75rem;
   img {
     width: .5rem;
     margin-right: .16rem;
@@ -318,7 +319,28 @@ $br: 4px;
   }
 }
 
+.Friends {
+  padding-top: .44rem;
+}
 
+.userIcon {
+  position: absolute;
+}
+.usersIcon {
+  right: .1rem;
+  top: .11rem;
+  img {
+    width: .22rem;
+    height: .22rem;
+  }
+}
+.addUserIcon {
+  top: .1rem;
+  right: .36rem;
+  img {
+    width: .24rem;
+    height: .24rem;
+  }
 
-
+}
 

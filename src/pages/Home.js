@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom'
 import Wrapper from './Wrapper'
 
 class Home extends Component {
@@ -10,7 +11,8 @@ class Home extends Component {
     return (
       <Wrapper>
         <div className="Main Home">
-          Home Page
+          <h1>Home</h1>
+          <Link to="/login">注册登录</Link>
         </div>
       </Wrapper>
     );

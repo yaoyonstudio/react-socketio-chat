@@ -8,6 +8,10 @@ userRouter.route('/:id')
   .get(userControllers.getUser)
 userRouter.route('/login')
   .post(userControllers.login)
+userRouter.route('/register')
+  .post(userControllers.register)
+userRouter.route('/friends')
+  .post(userControllers.getFriends)
 
 module.exports = userRouter
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { userService } from '../Services'
 import { ShowToast } from '../libs/keact/Notification'
+import { KFixedBtn } from '../libs/keact/Kui'
 
 class Login extends Component {
   constructor (props) {
@@ -16,6 +17,11 @@ class Login extends Component {
     this.changeCurrent = this.changeCurrent.bind(this)
     this.register = this.register.bind(this)
     this.login = this.login.bind(this)
+    this.goBack = this.goBack.bind(this)
+  }
+
+  goBack () {
+    console.log('goback')
   }
 
   changeType (type) {
@@ -38,7 +44,20 @@ class Login extends Component {
 
   register (e) {
     e.preventDefault();
-    console.log('register', this.state.username, ',', this.state.password)
+    if (!this.state.username || !this.state.password) {
+      ShowToast('用户名和密码不能为空', 1500)
+      return
+    }
+    userService.register({
+      username: this.state.username,
+      password: this.state.password
+    }, (res) => {
+      if (res.status) {
+        ShowToast(res.msg, 1500)
+      } else {
+        ShowToast(res.msg, 1500)
+      }
+    })
   }
 
   login (e) {
@@ -89,6 +108,7 @@ class Login extends Component {
             </div>
           </div>
         </div>
+        <KFixedBtn bottom="100px" />
       </div>
     );
   }
