@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import Wrapper from './Wrapper'
-import { userService } from '../Services'
 import { KTopbar } from '../libs/keact/Kui'
+
+import { getFriends } from '../modules/user';
 
 class Friends extends Component {
   constructor (props) {
@@ -23,19 +26,16 @@ class Friends extends Component {
   }
 
   componentDidMount () {
-    this.getUserList()
-  }
-
-  getUserList () {
+    console.log(this.props)
+    // if (this.props.me && this.props.me._id) {
+    //   this.props.getFriends(this.props.me._id, (res) => {
+    //     console.log('请求好友回调：', res)
+    //   })
+    // }
     if (this.state.me._id) {
-      userService.getFriends({user_id: this.state.me._id}, (res) => {
-        console.log(res)
-        if (res.status && res.data) {
-          this.setState({
-            users: res.data
-          })
-        }
-      })
+      this.props.getFriends(this.state.me._id, (res) => {
+        console.log('请求好友回调：', res)
+      })   
     }
   }
 
@@ -48,7 +48,7 @@ class Friends extends Component {
             <span className="userIcon addUserIcon"><img src="/img/adduser.png" alt="" /></span>
           </KTopbar>
           <ul className="userList">
-            {this.state.users.map((user, index) => {
+            {this.props.friends.map((user, index) => {
               return (
                 <li className="flex-r flex-c-b userItem" key={index} onClick={() => this.hrefLink(user)}>
                   <img src={user.avatar ? user.avatar : '/img/avatar.png'} alt={user.username} />
@@ -65,4 +65,18 @@ class Friends extends Component {
   }
 }
 
-export default Friends;
+
+const mapStateToProps = state => ({
+  me: state.user.me,
+  friends: state.user.friends
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getFriends
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Friends);

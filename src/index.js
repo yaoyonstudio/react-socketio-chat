@@ -1,17 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'react-router-redux';
 
 import './libs/keact/css/normalize.css'
 import './libs/keact/css/flex.css'
 import './libs/keact/css/common.css'
 
+import store, { history } from './store';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+			<App />
+    </ConnectedRouter>
+  </Provider>
   , document.getElementById('root'));
 registerServiceWorker();

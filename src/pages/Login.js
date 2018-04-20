@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import { userService } from '../Services'
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+
 import { ShowToast } from '../libs/keact/Notification'
 import { KFixedBtn } from '../libs/keact/Kui'
+
+import { login, register } from '../modules/user';
 
 class Login extends Component {
   constructor (props) {
@@ -17,11 +21,10 @@ class Login extends Component {
     this.changeCurrent = this.changeCurrent.bind(this)
     this.register = this.register.bind(this)
     this.login = this.login.bind(this)
-    this.goBack = this.goBack.bind(this)
   }
 
-  goBack () {
-    console.log('goback')
+  componentDidMount () {
+    console.log(this.props)
   }
 
   changeType (type) {
@@ -48,34 +51,20 @@ class Login extends Component {
       ShowToast('用户名和密码不能为空', 1500)
       return
     }
-    userService.register({
-      username: this.state.username,
-      password: this.state.password
-    }, (res) => {
-      if (res.status) {
-        ShowToast(res.msg, 1500)
-      } else {
-        ShowToast(res.msg, 1500)
-      }
+    this.props.register(this.state.username, this.state.password, (res) => {
+      ShowToast(res.msg, 1500)
     })
   }
 
   login (e) {
     e.preventDefault();
-    console.log('login', this.state.username, ',', this.state.password)
-
-    userService.login({
-      username: this.state.username,
-      password: this.state.password
-    }, (res) => {
+    if (!this.state.username || !this.state.password) {
+      ShowToast('用户名和密码不能为空', 1500)
+      return
+    }
+    this.props.login(this.state.username, this.state.password, (res) => {
       ShowToast(res.msg, 1500)
-      if (res.status) {
-        localStorage.setItem('username', res.data.username)
-        localStorage.setItem('password', res.data.password)
-        localStorage.setItem('avatar', res.data.avatar)
-        localStorage.setItem('_id', res.data._id)
-        this.props.history.push('/')
-      }
+      this.props.history.push('/')
     })
   }
 
@@ -114,4 +103,15 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      login,
+      register
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

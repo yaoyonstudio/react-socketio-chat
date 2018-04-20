@@ -23,3 +23,5 @@ export const userService = {
     Ajax.call(this, apiUrl + '/users/friends', 'post', params, fn)
   },
 }
+
+export const msgService = {}

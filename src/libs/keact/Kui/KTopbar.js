@@ -22,6 +22,7 @@ class KTopbar extends Component {
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 999;
       h2 {
         margin: 0;
         padding: 0;
