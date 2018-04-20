@@ -1,5 +1,7 @@
 // import { msgService } from '../Services'
 
+import { randomString } from '../libs/keact/Helper'
+
 export const GET_HISTORY_MSG = 'msg/GET_HISTORY_MSG'
 export const GET_UNREAD_MSG = 'msg/GET_UNREAD_MSG'
 export const PUSH_MSG = 'msg/PUSH_MSG'
@@ -7,7 +9,8 @@ export const CONCAT_MSGS = 'msg/CONCAT_MSGS'
 
 const initialState = {
   msgs: {},
-  currentSessionMsgs: []
+  currentSessionMsgs: [],
+  key: randomString()
 }
 
 
@@ -36,6 +39,7 @@ export default (state = initialState, action) => {
 
       return {
         ...state,
+        key: randomString(),
         currentSessionMsgs: _currentSessionMsgs1,
         msgs: _msgs1
       };
@@ -53,6 +57,7 @@ export default (state = initialState, action) => {
 
       return {
         ...state,
+        key: randomString(),
         currentSessionMsgs: _currentSessionMsgs2,
         msgs: _msgs2
       };

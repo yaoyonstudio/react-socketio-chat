@@ -154,6 +154,7 @@ class Chat extends Component {
 const mapStateToProps = state => ({
   me: state.user.me,
   friend: state.user.friend,
+  key: state.msg.key,
   msgs: state.msg.msgs,
   currentSessionMsgs: state.msg.currentSessionMsgs
 });
