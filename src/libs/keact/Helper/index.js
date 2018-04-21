@@ -215,3 +215,18 @@ export function randomString (len) {
   }
   return pwd
 }
+
+export function generateByNum (min, max) {
+  let arr = []
+  let offset = 1
+  if (!max || min > max) return []
+  for (let i = min; i <= max; i++) {
+    arr.push({
+      id: offset,
+      value: i
+    })
+    offset++
+  }
+  return arr
+}
+

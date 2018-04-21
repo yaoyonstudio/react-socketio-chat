@@ -1,9 +1,10 @@
 import axios from 'axios'
 
-export default function (url, method, params, fn, errFn) {
+export default function (url, method, headers = {}, params, fn, errFn) {
   return axios({
     url: url,
     method: method,
+    headers: headers,
     data: params
   }).then((res) => {
     if (res.status) {

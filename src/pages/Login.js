@@ -6,6 +6,7 @@ import { ShowToast } from '../libs/keact/Notification'
 import { KFixedBtn } from '../libs/keact/Kui'
 
 import { login, register } from '../modules/user';
+import { initSocketConnection, socketLogin } from '../modules/msg';
 
 class Login extends Component {
   constructor (props) {
@@ -64,7 +65,14 @@ class Login extends Component {
     }
     this.props.login(this.state.username, this.state.password, (res) => {
       ShowToast(res.msg, 1500)
-      this.props.history.push('/')
+      if (res.status) {
+        this.props.initSocketConnection()
+        this.props.socketLogin(this.state.username, this.state.password)
+        this.props.socket.on('loged', (data) => {
+          console.log(`${this.state.username} 用户登录成功`)
+        });
+        this.props.history.push('/')
+      }
     })
   }
 
@@ -103,13 +111,17 @@ class Login extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  socket: state.msg.socket
+});
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       login,
-      register
+      register,
+      initSocketConnection,
+      socketLogin
     },
     dispatch
   );

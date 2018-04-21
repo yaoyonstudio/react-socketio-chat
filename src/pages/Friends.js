@@ -17,25 +17,25 @@ class Friends extends Component {
       },
       users: []
     }
+    this.href = this.href.bind(this)
     this.hrefLink = this.hrefLink.bind(this)
   }
 
+  href (link) {
+    this.props.history.push(link)
+  }
+
   hrefLink (user) {
-    console.log(this.props)
+    console.log(user)
     this.props.history.push(`/chat/single/${user._id}`)
   }
 
   componentDidMount () {
     console.log(this.props)
-    // if (this.props.me && this.props.me._id) {
-    //   this.props.getFriends(this.props.me._id, (res) => {
-    //     console.log('请求好友回调：', res)
-    //   })
-    // }
-    if (this.state.me._id) {
-      this.props.getFriends(this.state.me._id, (res) => {
+    if (this.props.me && this.props.me._id) {
+      this.props.getFriends(this.props.me._id, this.props.me.token, (res) => {
         console.log('请求好友回调：', res)
-      })   
+      })
     }
   }
 
@@ -44,8 +44,8 @@ class Friends extends Component {
       <Wrapper>
         <div className="Main Friends">
           <KTopbar bgcolor="#eee" back title="好友列表">
-            <span className="userIcon usersIcon"><img src="/img/users.png" alt="" /></span>
-            <span className="userIcon addUserIcon"><img src="/img/adduser.png" alt="" /></span>
+            <span onClick={() => this.href('/find_friend')} className="userIcon usersIcon"><img src="/img/users.png" alt="" /></span>
+            <span onClick={() => this.href('/add_friend')} className="userIcon addUserIcon"><img src="/img/adduser.png" alt="" /></span>
           </KTopbar>
           <ul className="userList">
             {this.props.friends.map((user, index) => {
@@ -67,6 +67,7 @@ class Friends extends Component {
 
 
 const mapStateToProps = state => ({
+  socket: state.msg.socket,
   me: state.user.me,
   friends: state.user.friends
 });

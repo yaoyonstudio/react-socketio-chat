@@ -1,6 +1,10 @@
 // import { msgService } from '../Services'
-
+import { socketUrl } from '../constant'
 import { randomString } from '../libs/keact/Helper'
+
+export const INIT_SOCKET_CONNECTION = 'msg/INIT_SOCKET_CONNECTION'
+export const SOCKET_LOGIN = 'msg/SOCKET_LOGIN'
+
 
 export const GET_HISTORY_MSG = 'msg/GET_HISTORY_MSG'
 export const GET_UNREAD_MSG = 'msg/GET_UNREAD_MSG'
@@ -8,6 +12,7 @@ export const PUSH_MSG = 'msg/PUSH_MSG'
 export const CONCAT_MSGS = 'msg/CONCAT_MSGS'
 
 const initialState = {
+  socket: null,
   msgs: {},
   currentSessionMsgs: [],
   key: randomString()
@@ -16,6 +21,20 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case INIT_SOCKET_CONNECTION:
+      let _socket = window.io.connect(socketUrl)
+      if (action.payload.callback) action.payload.callback(_socket)
+      return {
+        ...state,
+        socket: _socket
+      }
+    case SOCKET_LOGIN:
+      state.socket.on('connect', () => {
+        state.socket.emit('login', { username: action.payload.username, password: action.payload.password })
+      });
+      return {
+        ...state
+      }
     case GET_HISTORY_MSG:
       return {
         ...state,
@@ -63,6 +82,32 @@ export default (state = initialState, action) => {
       };
     default:
       return state;
+  }
+}
+
+
+export const initSocketConnection = (callback) => {
+  return dispatch => {
+    dispatch({
+      type: INIT_SOCKET_CONNECTION,
+      payload: {
+        callback: callback
+      }
+    })
+  }
+}
+
+
+export const socketLogin = (username, password, callback) => {
+  return dispatch => {
+    dispatch({
+      type: SOCKET_LOGIN,
+      payload: {
+        username: username,
+        password: password
+      }
+    })
+    if (callback) callback()
   }
 }
 

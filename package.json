@@ -4,14 +4,18 @@
   "private": true,
   "dependencies": {
     "axios": "^0.17.1",
+    "exif-js": "^2.3.0",
     "history": "^4.7.2",
+    "iosselect": "^1.1.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-id-swiper": "^1.6.2",
+    "react-image-crop": "^3.0.11",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.9",
     "react-scripts": "1.1.1",
+    "react-swipe-card": "^0.1.4",
     "redux": "^4.0.0",
     "redux-thunk": "^2.2.0",
     "styled-components": "^3.2.6"

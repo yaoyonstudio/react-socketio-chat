@@ -8,7 +8,13 @@ export const REGISTER = 'user/REGISTER'
 const initialState = {
   friends: [],
   sessions: [],
-  me: {},
+  me: {
+    _id: localStorage.getItem('_id') ? localStorage.getItem('_id') : '',
+    username: localStorage.getItem('username') ? localStorage.getItem('username') : '',
+    password: localStorage.getItem('password') ? localStorage.getItem('password') : '',
+    token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
+    avatar: localStorage.getItem('avatar') ? localStorage.getItem('avatar') : '/img/avatar.png'
+  },
   friend: {}
 }
 
@@ -38,20 +44,6 @@ export default (state = initialState, action) => {
 
 export const login = (username, password, callback) => {
   return dispatch => {
-    // if (localStorage.getItem('_id') && localStorage.getItem('password') && localStorage.getItem('username')) {
-    //   dispatch({
-    //     type: LOGIN,
-    //     payload: {
-    //       data: {
-    //         _id: localStorage.getItem('_id'),
-    //         username: localStorage.getItem('username'),
-    //         avatar: localStorage.getItem('avatar') || '',
-    //         password: localStorage.getItem('password')
-    //       }
-    //     }
-    //   })
-    //   return
-    // }
     userService.login({
       username: username,
       password: password
@@ -59,7 +51,7 @@ export const login = (username, password, callback) => {
       if (res.status) {
         localStorage.setItem('_id', res.data._id)
         localStorage.setItem('username', res.data.username)
-        localStorage.setItem('password', res.data.password)
+        localStorage.setItem('token', res.data.token)
         localStorage.setItem('avatar', res.data.avatar)
         dispatch({
           type: LOGIN,
@@ -106,9 +98,11 @@ export const getUser = (id, callback) => {
   }
 }
 
-export const getFriends = (id, callback) => {
+export const getFriends = (id, token, callback) => {
   return dispatch => {
-    userService.getFriends({user_id: id}, (res) => {
+    userService.getFriends({
+      'authorization': 'Bearer ' + token
+    }, {user_id: id}, (res) => {
       console.log(res)
       if (res.status && res.data) {
         dispatch({

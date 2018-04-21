@@ -1,6 +1,10 @@
 const express = require('express')
 const app = express();
+const passport = require('passport')
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser')
+const session = require('express-session')
+const cors = require('cors')
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const mongoose = require('mongoose');
@@ -20,8 +24,30 @@ app.all('/*', function (req, res, next) {
   next();
 });
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(cookieParser())
+app.use(cors())
+
+// required for passport
+app.use(session({ secret: 'react-redux-socket',resave: true, saveUninitialized:true})); // session secret
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+
+
+require('./routes/auth')(app, passport)
+// require('./config/passport.js')(passport, User)
+
+// 错误处理
+app.use(function (err, req, res, next) {
+  console.log('错误处理：', err)
+  // res.status(err.status || 500)
+  // res.render('error', {
+  //   status: false,
+  //   message: err.message,
+  //   error: (app.get('env') === 'development') ? err : {}
+  // })
+})
 
 
 const onlineUsers = []
