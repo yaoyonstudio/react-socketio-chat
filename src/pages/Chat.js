@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { getUser } from '../modules/user';
+import { getUser, getFriendBasic } from '../modules/user';
 import { initSocketConnection, socketLogin, getHistoryMsg, pushMsg, concatMsgs } from '../modules/msg';
 import { KTopbar } from '../libs/keact/Kui'
 // import { ShowToast } from '../libs/keact/Notification'
@@ -17,9 +17,9 @@ class Chat extends Component {
     this.changeValue = this.changeValue.bind(this)
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    return true
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return true
+  // }
 
   componentDidMount () {
     console.log('componentDidMount', this.props)
@@ -36,7 +36,7 @@ class Chat extends Component {
 
     // 获取朋友的信息
     if (this.props.match.params.id) {
-      this.props.getUser(this.props.match.params.id)
+      this.props.getFriendBasic({_id: this.props.match.params.id})
     }
 
     // 连接socket服务器
@@ -162,6 +162,7 @@ const mapDispatchToProps = dispatch =>
       initSocketConnection,
       socketLogin,
       getUser,
+      getFriendBasic,
       getHistoryMsg,
       pushMsg,
       concatMsgs

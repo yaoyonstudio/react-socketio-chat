@@ -3,6 +3,10 @@ var bCrypt = require('bcrypt-nodejs')
 const User = require('../models/userModel')
 const common = require('../utils/common')
 
+var env = process.env.NODE_ENV || 'development';
+var config = require('../config/config.json')[env];
+const baseImgPrefixer = config.domain + ':' + config.port + '/static/'
+
 const isValidPassword = (userpass, password) => bCrypt.compareSync(password, userpass)
 
 module.exports = (app, passport) => {
@@ -43,7 +47,8 @@ module.exports = (app, passport) => {
             let _userInfo = {
               _id: user._id,
               username: user.username,
-              token: token
+              token: token,
+              avatar: baseImgPrefixer + user.avatar
             }
             res.send(common.output(true, _userInfo, '登录成功'))
           } else {

@@ -1,13 +1,26 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-
 import IosSelect from 'iosselect'
+import { checkEmail, checkMobile } from '../libs/keact/Helper'
+import { ShowToast } from '../libs/keact/Notification'
+import { Link } from 'react-router-dom'
+
 import ReactCrop, { makeAspectCrop } from 'react-image-crop'
 import EXIF from 'exif-js'
 
-import { getUser } from '../modules/user';
-import { KTopbar } from '../libs/keact/Kui'
+import { getUser, updateAvatar, updateUser } from '../modules/user';
+import { KTopbar, KDateSelect, KZoneSelect } from '../libs/keact/Kui'
+
+const educationData = [
+  {id: 1, value: '博士'},
+  {id: 2, value: '硕士'},
+  {id: 3, value: '本科'},
+  {id: 4, value: '大专'},
+  {id: 5, value: '中专'},
+  {id: 6, value: '高中'},
+  {id: 7, value: '高中以下'},
+]
 
 // const rotation = {
 //    1: 'rotate(0deg)',
@@ -95,7 +108,6 @@ function rotateBase64Image(base64ImageSrc) {
   });
 }
 
-
 function getCroppedImg(image, pixelCrop, fileName) {
   // console.log(image)
   const canvas = document.createElement('canvas');
@@ -150,15 +162,39 @@ class MyInfo extends Component {
         gender: 1,
         birthday: '',
         education: '',
-        address: '',
         province: '',
+        provinceId: 0,
         city: '',
+        cityId: 0,
         district: '',
-        laddress: '',
+        districtId: 0,
         lprovince: '',
+        lprovinceId: 0,
         lcity: '',
+        lcityId: 0,
         ldistrict: '',
-        interest: ''
+        ldistrictId: 0,
+        interestIds: '',
+        interests: ''
+      },
+      zoneStr: '',
+      lzoneStr: '',
+      educationId: 3,
+      date: {
+        year: {},
+        month: {},
+        day: {},
+      },
+      dateStr: '',
+      zone: {
+        province: {},
+        city: {},
+        district: {}
+      },
+      lzone: {
+        province: {},
+        city: {},
+        district: {}
       },
       interests: [
         {id: 1, title: '篮球'},
@@ -173,6 +209,9 @@ class MyInfo extends Component {
     }
     this.selectItem = this.selectItem.bind(this)
     this.changeValue = this.changeValue.bind(this)
+    this.selectZone = this.selectZone.bind(this)
+    this.selectDate = this.selectDate.bind(this)
+    this.showEducationSelector = this.showEducationSelector.bind(this)
     this.toggleLayer = this.toggleLayer.bind(this)
     this.fileChange = this.fileChange.bind(this)
     this.crop = this.crop.bind(this)
@@ -181,6 +220,183 @@ class MyInfo extends Component {
     this.onComplete = this.onComplete.bind(this)
     this.submit = this.submit.bind(this)
   }
+
+  componentDidMount () {
+    console.log(this.props)
+    this.props.getUser({_id: this.props.me._id}, this.props.me.token, (res) => {
+      console.log('res:', res)
+      if (res.status) {
+        // 初始化生日
+        let myDate = new Date(res.data.birthday)
+        let _birthday = {
+          year: {
+            id: myDate.getFullYear(),
+            value: myDate.getFullYear() + '年'
+          },
+          month: {
+            id: myDate.getMonth() + 1,
+            value: (myDate.getMonth() + 1) + '月'
+          },
+          day: {
+            id: myDate.getDate(),
+            value: myDate.getDate() + '日'
+          }
+        }
+        let _dateStr = _birthday.year.value + ' ' + _birthday.month.value + ' ' + _birthday.day.value
+        
+        // 初始化兴趣
+        let _interests = this.state.interests
+        if (res.data.interestIds) {
+          let _selectedInterestsArr = res.data.interestIds.split(',')
+          for (let i = 0, l = _interests.length; i < l; i++) {
+            for (let j = 0, k = _selectedInterestsArr.length; j < k; j++) {
+              if (parseInt(_interests[i].id, 10) === parseInt(_selectedInterestsArr[j], 10)) {
+                _interests[i].active = true
+              }
+            }
+          }
+        }
+
+        // 初始化学历
+        let _educationId = 0
+        for (let i = 0, l = educationData.length; i < l; i++) {
+          if (educationData[i].value === res.data.education) {
+            _educationId = educationData[i].id
+          }
+        }
+
+        let { ..._info } = res.data
+        delete _info.avatar
+        delete _info.ctime
+        delete _info.lastlogin
+        delete _info.mtime
+
+        this.setState({
+          ...this.state,
+          date: _birthday,
+          dateStr: _dateStr,
+          zone: {             // 初始化地区
+            province: {
+              id: parseInt(res.data.provinceId, 10),
+              value: res.data.province
+            },
+            city: {
+              id: parseInt(res.data.cityId, 10),
+              value: res.data.city
+            },
+            district: {
+              id: parseInt(res.data.districtId, 10),
+              value: res.data.district
+            }
+          },
+          lzone: {          // 初始化地区
+            province: {
+              id: parseInt(res.data.lprovinceId, 10),
+              value: res.data.lprovince
+            },
+            city: {
+              id: parseInt(res.data.lcityId, 10),
+              value: res.data.lcity
+            },
+            district: {
+              id: parseInt(res.data.ldistrictId, 10),
+              value: res.data.ldistrict
+            }
+          },
+          educationId: _educationId,
+          zoneStr: res.data.province + ' ' + res.data.city + ' ' + res.data.district,
+          lzoneStr: res.data.lprovince + ' ' + res.data.lcity + ' ' + res.data.ldistrict,
+          interests: _interests,
+          info: _info
+        })
+      } else {
+        ShowToast(res.msg, 2000)
+      }
+    })
+  }
+
+  showEducationSelector () {
+    new IosSelect(1, 
+      [educationData],
+      {
+        container: '.container',
+        title: '选择学历',
+        itemHeight: 50,
+        itemShowCount: 3,
+        oneLevelId: this.state.educationId,
+        callback: (selectOneObj) => {
+          this.setState({
+            ...this.state,
+            info: {
+              ...this.state.info,
+              education: selectOneObj.value
+            }
+          })
+        }
+    })
+  }
+
+  selectDate (_year, _month, _day, field) {
+    this.setState({
+      ...this.state,
+      [field]: {
+        year: _year,
+        month: _month,
+        day: _day
+      }
+    }, () => {
+      this.setState({
+        ...this.state,
+        dateStr: this.state.date.year.value + ' ' + this.state.date.month.value + ' ' + this.state.date.day.value,
+        info: {
+          ...this.state.info,
+          birthday: this.state.date.year.id + '-' + this.state.date.month.id + '-' + this.state.date.day.id
+        }
+      })
+    })
+  }
+
+  selectZone (_province, _city, _district, field) {
+    this.setState({
+      ...this.state,
+      [field]: {
+        province: _province,
+        city: _city,
+        district: _district
+      }
+    }, () => {
+      if (field === 'zone') {
+        this.setState({
+          ...this.state,
+          zoneStr: this.state.zone.province.value + ' ' + this.state.zone.city.value + ' ' + this.state.zone.district.value,
+          info: {
+            ...this.state.info,
+            province: this.state.zone.province.value,
+            provinceId: this.state.zone.province.id,
+            city: this.state.zone.city.value,
+            cityId: this.state.zone.city.id,
+            district: this.state.zone.district.value,
+            districtId: this.state.zone.district.id
+          }
+        })
+      } else if (field === 'lzone') {
+        this.setState({
+          ...this.state,
+          lzoneStr: this.state.lzone.province.value + ' ' + this.state.lzone.city.value + ' ' + this.state.lzone.district.value,
+          info: {
+            ...this.state.info,
+            lprovince: this.state.lzone.province.value,
+            lprovinceId: this.state.lzone.province.id,
+            lcity: this.state.lzone.city.value,
+            lcityId: this.state.lzone.city.id,
+            ldistrict: this.state.lzone.district.value,
+            ldistrictId: this.state.lzone.district.id
+          }
+        })
+      }
+    })
+  }
+
   toggleLayer (e) {
     this.setState({
       showLayer: !this.state.showLayer,
@@ -224,6 +440,39 @@ class MyInfo extends Component {
 
   submit () {
     console.log(this.state.info)
+    // 如果有手机或邮箱数据，需要进行验证
+    if (this.state.info.telephone) {
+      if (!checkMobile(this.state.info.telephone)) {
+        ShowToast('手机号码格式不正确', 1500)
+        return
+      }
+    }
+    if (this.state.info.email) {
+      if (!checkEmail(this.state.info.email)) {
+        ShowToast('邮箱格式不正确', 1500)
+        return
+      }
+    }
+
+    // 获取并赋值兴趣项数据
+    const selectInterestItems = this.state.interests
+      .filter(item => item.active)
+    let _interestIds = selectInterestItems.reduce((resultStr, item, index) => resultStr + (index ? ',' : '') + item.id, '')
+    let _interestTitles = selectInterestItems.reduce((resultStr, item, index) => resultStr + (index ? ',' : '') + item.title, '')
+    this.setState({
+      ...this.state,
+      info: {
+        ...this.state.info,
+        interestIds: _interestIds,
+        interests: _interestTitles
+      }
+    }, () => {
+      console.log(this.state.info)
+      this.props.updateUser(this.props.me._id, this.state.info, this.props.me.token, (res) => {
+        ShowToast(res.msg, 2000)
+      })
+    })
+
   }
 
   fileChange (e) {
@@ -235,19 +484,18 @@ class MyInfo extends Component {
         showLoading: true
       })
 
-      console.log('start:', new Date().getSeconds())
+      // console.log('start:', new Date().getSeconds())
       let allTag = {}
       EXIF.getData(e.target.files[0], function () {
         allTag = EXIF.getAllTags(this)
-        console.log('allTag:', allTag)
+        // console.log('allTag:', allTag)
       })
 
       var reader = new FileReader()
       reader.readAsDataURL(e.target.files[0])
       reader.onload = function (data) {
-        console.log('origin image data:', data.target)
+        // console.log('origin image data:', data.target)
         if (allTag.Orientation && allTag.Orientation === 6) {
-          console.log('1')
           // console.log(rotateBase64Image(data.target.result))
           rotateBase64Image(data.target.result).then((baseData) => {
             console.log(baseData)
@@ -257,20 +505,19 @@ class MyInfo extends Component {
             })
           })
         } else {
-          console.log('2')
           that.setState({
             uploadFile: data.target.result,
             showAvatarModify: true
           })
         }
-        console.log('end:', new Date().getSeconds())
+        // console.log('end:', new Date().getSeconds())
       }
     }
   }
 
   didCrop (e) {
     // e.preventDefault()
-    console.log('pixelCrop did Crop:', this.state.pixelCrop)
+    // console.log('pixelCrop did Crop:', this.state.pixelCrop)
     let image = document.querySelector('.ReactCrop__image')
     getCroppedImg(image, this.state.pixelCrop).then((blob) => {
       // console.log('blob', blob)
@@ -288,13 +535,17 @@ class MyInfo extends Component {
       
       img.src = blob
       // console.log(blob)
-      console.log('这里上传图片')
+      // console.log('这里上传图片')
+      this.props.updateAvatar({
+        img: blob
+      }, this.props.me.token, (res) => {
+        ShowToast(res.msg, 2000)
+      })
       this.toggleLayer(e)
-
     })
   }
   onImageLoaded (image) {
-    console.log('image:', image)
+    // console.log('image:', image)
     this.setState({
       // showLoading: false,
       crop: makeAspectCrop({
@@ -320,16 +571,15 @@ class MyInfo extends Component {
         showLoading: false
       })
     })
-    console.log('pixelCrop init:', this.state.pixelCrop)
+    // console.log('pixelCrop init:', this.state.pixelCrop)
   }
   crop (crop, pixelCrop) {
-    console.log('crop:', crop)
     this.setState({ crop, pixelCrop })
   }
   onComplete(crop, pixelCrop) {
-    console.log('complete')
-    console.log('crop:', crop)
-    console.log('pixelCrop:', pixelCrop)
+    // console.log('complete')
+    // console.log('crop:', crop)
+    // console.log('pixelCrop:', pixelCrop)
   }
 
   render() {
@@ -355,7 +605,7 @@ class MyInfo extends Component {
               <li>
                 <label className="flex-r flex-c-b">
                   <span>密码</span>
-                  <aside><a>修改密码</a></aside>
+                  <aside><Link to="/modify_password">修改密码</Link></aside>
                 </label>
               </li>
               <li>
@@ -381,13 +631,13 @@ class MyInfo extends Component {
               <li>
                 <label className="flex-r flex-c-b">
                   <span>手机</span>
-                  <aside><input type="text" placeholder="手机" value={this.state.info.telephone} onChange={(e) => this.changeValue('telephone', e.target.value)} /></aside>
+                  <aside><input type="telephone" placeholder="手机" value={this.state.info.telephone} onChange={(e) => this.changeValue('telephone', e.target.value)} /></aside>
                 </label>
               </li>
               <li>
                 <label className="flex-r flex-c-b">
                   <span>邮箱</span>
-                  <aside><input type="text" placeholder="邮箱" value={this.state.info.email} onChange={(e) => this.changeValue('email', e.target.value)} /></aside>
+                  <aside><input type="email" placeholder="邮箱" value={this.state.info.email} onChange={(e) => this.changeValue('email', e.target.value)} /></aside>
                 </label>
               </li>
               <li>
@@ -399,25 +649,25 @@ class MyInfo extends Component {
               <li>
                 <label className="flex-r flex-c-b">
                   <span>生日</span>
-                  <aside><input type="text" placeholder="生日" disabled value={this.state.info.birthday} /></aside>
+                  <aside><KDateSelect color="#0a8acd" date={this.state.date} dateStr={this.state.dateStr} field='date' height=".28rem;" select={(_year, _month, _day, field) => this.selectDate(_year, _month, _day, field)}></KDateSelect></aside>
                 </label>
               </li>
               <li>
                 <label className="flex-r flex-c-b">
                   <span>学历</span>
-                  <aside><input type="text" placeholder="学历" disabled value={this.state.info.education} /></aside>
+                  <aside onClick={() =>this.showEducationSelector()}><input type="text" className="select" placeholder="请选择学历" disabled value={this.state.info.education} /></aside>
                 </label>
               </li>
               <li>
                 <label className="flex-r flex-c-b">
                   <span>家乡</span>
-                  <aside><input type="text" placeholder="家乡" disabled value={this.state.info.address} /></aside>
+                  <aside><KZoneSelect color="#0a8acd" zoneStr={this.state.zoneStr} zone={this.state.zone} field='zone' height=".28rem;" select={(_province, _city, _district, field) => this.selectZone(_province, _city, _district, field)}></KZoneSelect></aside>
                 </label>
               </li>
               <li>
                 <label className="flex-r flex-c-b">
                   <span>所在地</span>
-                  <aside><input type="text" placeholder="所在地" disabled value={this.state.info.laddress} /></aside>
+                  <aside><KZoneSelect color="#0a8acd" zoneStr={this.state.lzoneStr} zone={this.state.lzone} field='lzone' height=".28rem;" select={(_province, _city, _district, field) => this.selectZone(_province, _city, _district, field)}></KZoneSelect></aside>
                 </label>
               </li>
               <li>
@@ -434,7 +684,7 @@ class MyInfo extends Component {
               </li>
               <li>
                 <div>
-                  <textarea placeholder="个人签名" onChange={(e) => this.changeValue('slogan', e.target.value)}></textarea>
+                  <textarea placeholder="个人签名" value={this.state.info.slogan} onChange={(e) => this.changeValue('slogan', e.target.value)}></textarea>
                 </div>
               </li>
               <li>
@@ -478,7 +728,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      getUser
+      getUser,
+      updateAvatar,
+      updateUser
     },
     dispatch
   );

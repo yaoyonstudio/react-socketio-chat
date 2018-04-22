@@ -22,17 +22,28 @@ var userModel = new Schema({
     type: Number,
     default: 1
   },
-  birthday: Date,
+  birthday: String,
   education: String,
   province: String,
+  provinceId: Number,
   city: String,
+  cityId: Number,
   district: String,
+  districtId: Number,
   lprovince: String,
+  lprovinceId: Number,
   lcity: String,
+  lcityId: Number,
   ldistrict: String,
+  ldistrictId: Number,
   slogan: String,       // 签名
-  interest: String,     // 兴趣
+  interestIds: String,     // 兴趣ID
+  interests: String,       // 兴趣字符串
   ctime: {
+    type: Date,
+    default: Date.now
+  },
+  mtime: {
     type: Date,
     default: Date.now
   },

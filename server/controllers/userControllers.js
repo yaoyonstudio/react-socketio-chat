@@ -1,6 +1,57 @@
 const common = require('../utils/common')
 const User = require('../models/userModel')
 const Relation = require('../models/relationModel')
+const jwt = require('jsonwebtoken')
+
+var env = process.env.NODE_ENV || 'development';
+var config = require('../config/config.json')[env];
+const baseImgPrefixer = config.domain + ':' + config.port + '/static/'
+
+const fs = require('fs')
+const baseDir = 'assets/avatar/'
+const avatarDir = 'avatar/'
+
+const createDir = function (baseDir) {
+  var today = new Date()
+  var directory = today.getFullYear().toString() + '/'
+  if (!fs.existsSync(baseDir + directory)) {
+    fs.mkdirSync(baseDir + directory)
+  }
+  var month = today.getMonth() + 1
+  if (month < 10) {
+    month = '0' + month
+  } 
+  directory += today.getFullYear().toString() + month + '/'
+  if (!fs.existsSync(baseDir + directory)) {
+    fs.mkdirSync(baseDir + directory)
+  }
+  return baseDir + directory
+}
+
+const randomString = function (len) {
+  len = len || 32
+  var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
+  var maxPos = $chars.length
+  var pwd = ''
+  for (let i = 0; i < len; i++) {
+    pwd += $chars.charAt(Math.floor(Math.random() * maxPos))
+  }
+  return pwd
+}
+
+function decodeBase64Image (dataString) {
+  var matches = dataString.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/),
+    response = {};
+
+  if (matches.length !== 3) {
+    return new Error('Invalid input string');
+  }
+
+  response.type = matches[1];
+  response.data = new Buffer(matches[2], 'base64');
+
+  return response;
+}
 
 userControllers = {
   getUsers: (req, res) => {
@@ -12,17 +63,42 @@ userControllers = {
       }
     })
   },
-  getUserBasic: (req, res) => {
-    let result
-    if (req.params && req.params.id) {
-      User.findById(req.params.id, (err, user) => {
+  getUser: (req, res) => {
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
+      if (err) {
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
+      } else {
+        if (req.body && req.body._id) {
+          User.findById(req.body._id, (err, user) => {
+            if (err) {
+              res.send(common.output(false, null, '没有找到指定用户'))
+            } else {
+              let _user = user._doc
+              delete _user.password
+              delete _user.status
+              res.send(common.output(true, _user, '请求成功'));
+            }
+          })
+        } else {
+          res.send(common.output(false, null, '请求错误'))
+        }
+      }
+    })
+  },
+  getFriendBasic: (req, res) => {
+    if (req.body._id) {
+      User.findById(req.body._id, (err, user) => {
         if (err) {
           res.send(common.output(false, null, '没有找到指定用户'))
         } else {
           let _user = {
             _id: user._id,
             username: user.username,
-            avatar: user.avatar
+            avatar: baseImgPrefixer + user.avatar
           }
           res.send(common.output(true, _user, '请求成功'));
         }
@@ -79,7 +155,19 @@ userControllers = {
               if (err) {
                 res.send(common.output(false, null, '找好友数据时出错'))
               } else {
-                res.send(common.output(true, users, '请求成功'));
+                let _users = []
+                for (let i = 0, l = users.length; i < l; i++) {
+                  let _user = {}
+                  if (users[i].avatar) {
+                    _user.avatar = baseImgPrefixer + users[i].avatar
+                  }
+                  _user._id = users[i]._id
+                  _user.gender = users[i].gender
+                  _user.username = users[i].username
+                  _user.lastlogin = users[i].lastlogin
+                  _users.push(_user)
+                }
+                res.send(common.output(true, _users, '请求成功'));
               }
             })
           } else {
@@ -90,6 +178,89 @@ userControllers = {
     } else {
       res.send(common.output(false, null, '请求错误'))
     }
+  },
+  updateAvatar: (req, res) => {
+    // console.log('body:', req.body)
+    // console.log('token:', req.token)
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
+      if (err) {
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
+      } else {
+        // console.log('鉴权通过:', data)
+        const imageBuffer = decodeBase64Image(req.body.img)
+        // console.log(imageBuffer)
+        let filename = randomString(9)
+        const fileUrl = createDir(baseDir) + filename + '.jpg'
+        const saveUrl = fileUrl.substring(7)
+        fs.writeFile(fileUrl, imageBuffer.data, (err) => {
+          if (err) {
+            // console.log('写入图片文件失败:', err)
+            res.send(common.output(false, {}, '头像写入失败'))
+          } else {
+            // 写入图片成功，更新用户表中头像字段
+            User.findOneAndUpdate({_id: data.user}, {$set: {avatar: saveUrl}}, {new: true}, (err, user) => {
+              if (err) {
+                res.send(common.output(false, {}, '头像更新失败'))
+              } else {
+                res.send(common.output(true, config.domain + ':' + config.port + '/static/' + user.avatar, '头像更新成功'))
+              }
+            })
+          }
+        })
+      }
+    })
+  },
+  updatePassword: (req, res) => {
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
+      if (err) {
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
+      } else {
+        User.findById(req.body._id, (err, user) => {
+          if (err) {
+            res.send(common.output(false, null, '没有找到指定用户'))
+          } else {
+            if (user.password === req.body.originPwd && req.body.password === req.body.rePassword) {
+              User.findOneAndUpdate({_id: req.body._id}, {$set: {password: req.body.password}}, (err, user) => {
+                if (err) {
+                  res.send(common.output(false, {}, '用户密码更新失败'))
+                } else {
+                  res.send(common.output(true, {}, '用户密码更新成功'))
+                }
+              })
+            } else {
+              res.send(common.output(false, null, '原用户密码不正确或两次输入密码不一致'))
+            }
+          }
+        })
+      }
+    })
+  },
+  updateUser: (req, res) => {
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
+      if (err) {
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
+      } else {
+        User.findOneAndUpdate({_id: req.params.id}, {$set: req.body}, {new: true}, (err, user) => {
+          if (err) {
+            res.send(common.output(false, {}, '用户更新失败'))
+          } else {
+            res.send(common.output(true, user, '用户更新成功'))
+          }
+        })
+      }
+    })
   }
 }
 

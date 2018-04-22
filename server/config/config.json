@@ -4,6 +4,8 @@
     "password": null,
     "database": "nodeupload",
     "host": "127.0.0.1",
+    "domain": "http://localhost",
+    "port": 9000,
     "dialect": "mysql",
     "timezone": "+08:00"
   },

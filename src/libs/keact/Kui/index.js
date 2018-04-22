@@ -12,6 +12,8 @@ import KPagination from './KPagination'
 import KSwiper from './KSwiper'
 import KFilters from './KFilters/KFilters'
 import KInfiniteScroll from './KInfiniteScroll/KInfiniteScroll'
+import KDateSelect from './KDateSelect'
+import KZoneSelect from './KZoneSelect'
 
 
 export { 
@@ -28,7 +30,9 @@ export {
   KPagination,
   KSwiper,
   KFilters,
-  KInfiniteScroll
+  KInfiniteScroll,
+  KDateSelect,
+  KZoneSelect
 }
 
 

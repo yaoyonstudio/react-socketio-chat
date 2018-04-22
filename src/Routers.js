@@ -9,6 +9,7 @@ import Chat from './pages/Chat';
 import Login from './pages/Login';
 import My from './pages/My';
 import MyInfo from './pages/MyInfo';
+import ModifyPassword from './pages/ModifyPassword';
 import Test from './pages/Test';
 
 
@@ -20,6 +21,7 @@ class Routers extends Component {
         <Route exact path="/login" component={Login} />
         <Route exact path="/my" component={My} />
         <Route exact path="/my_info" component={MyInfo} />
+        <Route exact path="/modify_password" component={ModifyPassword} />
         <Route exact path="/friends" component={Friends} />
         <Route exact path="/add_friend" component={AddFriend} />
         <Route exact path="/find_friend" component={FindFriend} />

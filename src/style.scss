@@ -482,7 +482,7 @@ $br: 4px;
       height: 100%;
       color: #666;
     }
-    input[type=text] {
+    input[type=text], input[type=telephone], input[type=password], input[type=email] {
       width: 100%;
       background-color: #f7f7f7;
       padding-right: 0.08rem;
@@ -515,11 +515,15 @@ $br: 4px;
       border: 1px solid #eee;
       padding: .08rem;
       resize:none;
+      border-radius: .02rem;
     }
   }
   .active {
     background-color: #1abbe1;
     color: #fff;
+  }
+  .select {
+    color: #0a8acd;
   }
 }
 
@@ -542,5 +546,10 @@ $br: 4px;
   margin-top: .1rem;
 }
 
-
+.ModifyPassword {
+  .MyInfo_form {
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+}
 

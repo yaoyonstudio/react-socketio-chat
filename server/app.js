@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const app = express();
 const passport = require('passport')
@@ -16,18 +17,20 @@ const msgControllers = require('./controllers/msgControllers')
 
 
 app.all('/*', function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "X-Requested-With,Content-type,Accept,X-Access-Token,X-Key");
   res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
   res.header("Content-Type", "application/json;charset=utf-8");
   // res.header("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+  // res.header('X-XSS-Protection', 0);
   next();
 });
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser())
 app.use(cors())
+app.use('/static', express.static(path.join(__dirname, 'assets')))
 
 // required for passport
 app.use(session({ secret: 'react-redux-socket',resave: true, saveUninitialized:true})); // session secret
