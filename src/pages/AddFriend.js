@@ -10,7 +10,7 @@ class AddFriend extends Component {
     return (
       <div className="Container">
         <KTopbar back title="添加好友" bgcolor="#efefef" color="#666"></KTopbar>
-        <div className="Main AddFriend">
+        <div className="Main AddFriend fixedMain">
           AddFriend
         </div>
       </div>

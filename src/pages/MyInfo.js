@@ -226,45 +226,6 @@ class MyInfo extends Component {
     this.props.getUser({_id: this.props.me._id}, this.props.me.token, (res) => {
       console.log('res:', res)
       if (res.status) {
-        // 初始化生日
-        let myDate = new Date(res.data.birthday)
-        let _birthday = {
-          year: {
-            id: myDate.getFullYear(),
-            value: myDate.getFullYear() + '年'
-          },
-          month: {
-            id: myDate.getMonth() + 1,
-            value: (myDate.getMonth() + 1) + '月'
-          },
-          day: {
-            id: myDate.getDate(),
-            value: myDate.getDate() + '日'
-          }
-        }
-        let _dateStr = _birthday.year.value + ' ' + _birthday.month.value + ' ' + _birthday.day.value
-        
-        // 初始化兴趣
-        let _interests = this.state.interests
-        if (res.data.interestIds) {
-          let _selectedInterestsArr = res.data.interestIds.split(',')
-          for (let i = 0, l = _interests.length; i < l; i++) {
-            for (let j = 0, k = _selectedInterestsArr.length; j < k; j++) {
-              if (parseInt(_interests[i].id, 10) === parseInt(_selectedInterestsArr[j], 10)) {
-                _interests[i].active = true
-              }
-            }
-          }
-        }
-
-        // 初始化学历
-        let _educationId = 0
-        for (let i = 0, l = educationData.length; i < l; i++) {
-          if (educationData[i].value === res.data.education) {
-            _educationId = educationData[i].id
-          }
-        }
-
         let { ..._info } = res.data
         delete _info.avatar
         delete _info.ctime
@@ -273,42 +234,105 @@ class MyInfo extends Component {
 
         this.setState({
           ...this.state,
-          date: _birthday,
-          dateStr: _dateStr,
-          zone: {             // 初始化地区
-            province: {
-              id: parseInt(res.data.provinceId, 10),
-              value: res.data.province
-            },
-            city: {
-              id: parseInt(res.data.cityId, 10),
-              value: res.data.city
-            },
-            district: {
-              id: parseInt(res.data.districtId, 10),
-              value: res.data.district
-            }
-          },
-          lzone: {          // 初始化地区
-            province: {
-              id: parseInt(res.data.lprovinceId, 10),
-              value: res.data.lprovince
-            },
-            city: {
-              id: parseInt(res.data.lcityId, 10),
-              value: res.data.lcity
-            },
-            district: {
-              id: parseInt(res.data.ldistrictId, 10),
-              value: res.data.ldistrict
-            }
-          },
-          educationId: _educationId,
-          zoneStr: res.data.province + ' ' + res.data.city + ' ' + res.data.district,
-          lzoneStr: res.data.lprovince + ' ' + res.data.lcity + ' ' + res.data.ldistrict,
-          interests: _interests,
-          info: _info
+          info: {
+            ...this.state.info,
+            ..._info
+          }
         })
+
+        // 初始化生日
+        if (res.data.birthday) {
+          let myDate = new Date(res.data.birthday)
+          let _birthday = {
+            year: {
+              id: myDate.getFullYear(),
+              value: myDate.getFullYear() + '年'
+            },
+            month: {
+              id: myDate.getMonth() + 1,
+              value: (myDate.getMonth() + 1) + '月'
+            },
+            day: {
+              id: myDate.getDate(),
+              value: myDate.getDate() + '日'
+            }
+          }
+          let _dateStr = _birthday.year.value + ' ' + _birthday.month.value + ' ' + _birthday.day.value
+          this.setState({
+            date: _birthday,
+            dateStr: _dateStr,
+          })
+        }
+        
+        // 初始化兴趣
+        if (res.data.interestIds) {
+          let _interests = this.state.interests
+          let _selectedInterestsArr = res.data.interestIds.split(',')
+          for (let i = 0, l = _interests.length; i < l; i++) {
+            for (let j = 0, k = _selectedInterestsArr.length; j < k; j++) {
+              if (parseInt(_interests[i].id, 10) === parseInt(_selectedInterestsArr[j], 10)) {
+                _interests[i].active = true
+              }
+            }
+          }
+          this.setState({
+            interests: _interests
+          })
+        }
+
+        // 初始化学历
+        if (res.data.education) {
+          let _educationId = 0
+          for (let i = 0, l = educationData.length; i < l; i++) {
+            if (educationData[i].value === res.data.education) {
+              _educationId = educationData[i].id
+            }
+          }
+          this.setState({
+            educationId: _educationId
+          })
+        }
+
+        // 初始化地区
+        if (res.data.provinceId && res.data.cityId && res.data.districtId && res.data.province && res.data.city && res.data.district){
+          this.setState({
+            zone: {             // 初始化地区
+              province: {
+                id: parseInt(res.data.provinceId, 10),
+                value: res.data.province
+              },
+              city: {
+                id: parseInt(res.data.cityId, 10),
+                value: res.data.city
+              },
+              district: {
+                id: parseInt(res.data.districtId, 10),
+                value: res.data.district
+              }
+            },
+            zoneStr: res.data.province + ' ' + res.data.city + ' ' + res.data.district
+          })
+        }
+
+        if (res.data.lprovinceId && res.data.lcityId && res.data.ldistrictId && res.data.lprovince && res.data.lcity && res.data.ldistrict) {
+          this.setState({
+            lzone: {          // 初始化地区
+              province: {
+                id: parseInt(res.data.lprovinceId, 10),
+                value: res.data.lprovince
+              },
+              city: {
+                id: parseInt(res.data.lcityId, 10),
+                value: res.data.lcity
+              },
+              district: {
+                id: parseInt(res.data.ldistrictId, 10),
+                value: res.data.ldistrict
+              }
+            },
+            lzoneStr: res.data.lprovince + ' ' + res.data.lcity + ' ' + res.data.ldistrict
+          })
+        }
       } else {
         ShowToast(res.msg, 2000)
       }
