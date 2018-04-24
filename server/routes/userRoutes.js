@@ -5,7 +5,7 @@ const ensureToken = require('../utils/common').ensureToken
 const upload = require('../config/multer')
 
 userRouter.route('')
-  .get(userControllers.getUsers)
+  .get(ensureToken, userControllers.getUsers)        // http://localhost:9000/users?page=4&limit=3
 userRouter.route('/:id')
   // .get(userControllers.getUser)
   .patch(ensureToken, userControllers.updateUser)
@@ -19,6 +19,8 @@ userRouter.route('/update_avatar')
   .post(ensureToken, userControllers.updateAvatar)
 userRouter.route('/update_password')
   .post(ensureToken, userControllers.updatePassword)
+userRouter.route('/find_friends')
+  .post(ensureToken, userControllers.findFriends)             // http://localhost:9000/users/find_friends   params: { page: 1, limit: 10, keyord: 'test' }
 // userRouter.route('/login')
 //   .post(userControllers.login)
 // userRouter.route('/register')

@@ -554,3 +554,25 @@ $br: 4px;
   }
 }
 
+.searchHeader {
+  border-bottom: 1px solid #eee;
+  padding: 0 .1rem;
+  label {
+    height: .32rem;
+    input[type=text] {
+      height: .32rem;
+      border: none;
+      background: url(/img/search.png) no-repeat left center;
+      background-size: .2rem;
+      padding-left: .24rem;
+      color: #555;
+    }
+    button {
+      @extend .mainBtn;
+      width: .52rem;
+      height: .28rem;
+      line-height: .28rem;
+    }
+  }
+}
+

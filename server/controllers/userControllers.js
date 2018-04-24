@@ -55,9 +55,21 @@ function decodeBase64Image (dataString) {
 
 userControllers = {
   getUsers: (req, res) => {
-    User.find((err, users) => {
+    // 不分页
+    // User.find((err, users) => {
+    //   if (err) {
+    //     common.output(false, null, '请求失败')
+    //   } else {
+    //     res.send(common.output(true, users, '请求成功'))
+    //   }
+    // })
+
+    // 分页
+    let _page = parseInt(req.query.page, 10) || 1
+    let _limit = parseInt(req.query.limit, 10) || 10
+    User.paginate({}, { page: _page, limit: _limit}, (err, users) => {
       if (err) {
-        common.output(false, null, '请求失败')
+        common.output(false, err, '请求失败')
       } else {
         res.send(common.output(true, users, '请求成功'))
       }
@@ -257,6 +269,28 @@ userControllers = {
             res.send(common.output(false, {}, '用户更新失败'))
           } else {
             res.send(common.output(true, user, '用户更新成功'))
+          }
+        })
+      }
+    })
+  },
+  findFriends: (req, res) => {
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
+      if (err) {
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
+      } else {
+        let _page = parseInt(req.body.page, 10) || 1
+        let _limit = parseInt(req.body.limit, 10) || 10
+        const _regex = new RegExp(req.body.keyword)
+        User.paginate({ "username": { $regex: _regex, $options: 'i'} }, { page: _page, limit: _limit}, (err, users) => {
+          if (err) {
+            res.send(common.output(false, {}, '查询失败'))
+          } else {
+            res.send(common.output(true, users, '查询成功'))
           }
         })
       }

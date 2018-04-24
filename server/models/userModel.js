@@ -1,5 +1,7 @@
 //引入mongoose
 var mongoose = require('mongoose');
+// 分页
+const mongoosePaginate = require('mongoose-paginate');
 
 //定义数据库模式
 var Schema = mongoose.Schema;
@@ -53,5 +55,7 @@ var userModel = new Schema({
   },
   lastloginip: String
 });
+
+userModel.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("User", userModel);

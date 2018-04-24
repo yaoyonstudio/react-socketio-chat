@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { ShowToast } from '../libs/keact/Notification'
 import { KFixedBtn } from '../libs/keact/Kui'
+import { getCurLocation } from '../libs/keact/qqMap'
 
 import { login, register } from '../modules/user';
 import { initSocketConnection, socketLogin } from '../modules/msg';
@@ -26,6 +27,9 @@ class Login extends Component {
 
   componentDidMount () {
     console.log(this.props)
+    getCurLocation(res => {
+      console.log(res)
+    })
   }
 
   changeType (type) {
