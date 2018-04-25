@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom'
 import Wrapper from './Wrapper'
+
+import { getLocation } from '../modules/user';
+
 
 class Home extends Component {
   constructor (props) {
@@ -11,6 +16,7 @@ class Home extends Component {
   
   componentDidMount () {
     console.log(this.props)
+    this.props.getLocation()
   }
 
   render() {
@@ -25,4 +31,18 @@ class Home extends Component {
   }
 }
 
-export default Home;
+
+const mapStateToProps = state => ({
+  me: state.user.me
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getLocation
+    },
+    dispatch
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
+

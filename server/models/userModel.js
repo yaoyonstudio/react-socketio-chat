@@ -26,6 +26,8 @@ var userModel = new Schema({
   },
   birthday: String,
   education: String,
+  lat: String,
+  lng: String,
   province: String,
   provinceId: Number,
   city: String,

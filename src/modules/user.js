@@ -1,5 +1,8 @@
 import { userService } from '../Services'
+import { getValue, setValue } from '../libs/keact/Helper'
+import { getCurLocation } from '../libs/keact/qqMap'
 
+export const GET_LOCATION = 'user/GET_LOCATION'
 export const GET_USER_INFO = 'user/GET_USER_INFO'
 export const GET_FRIEND_INFO = 'user/GET_FRIEND_INFO'
 export const GET_USER_FRIENDS = 'user/GET_USER_FRIENDS'
@@ -17,13 +20,26 @@ const initialState = {
     username: localStorage.getItem('username') ? localStorage.getItem('username') : '',
     password: localStorage.getItem('password') ? localStorage.getItem('password') : '',
     token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
-    avatar: localStorage.getItem('avatar') ? localStorage.getItem('avatar') : '/img/avatar.png'
+    avatar: localStorage.getItem('avatar') ? localStorage.getItem('avatar') : '/img/avatar.png',
+    lat: getValue('lat') ? getValue('lat') : '',
+    lng: getValue('lng') ? getValue('lng') : ''
   },
   friend: {}
 }
 
 export default (state = initialState, action) => {
   switch (action.type) {
+    case GET_LOCATION:
+      setValue('lat', action.payload.data.lat)
+      setValue('lng', action.payload.data.lng)
+      return {
+        ...this.state,
+        me: {
+          ...this.state.me,
+          lat: action.payload.data.lat,
+          lng: action.payload.data.lng
+        }
+      }
     case GET_USER_INFO:
       return {
         ...state
@@ -71,6 +87,20 @@ export default (state = initialState, action) => {
 }
 
 
+export const getLocation = () => {
+  return dispatch => {
+    getCurLocation(res => {
+      dispatch({
+        type: GET_LOCATION,
+        payload: {
+          data: res
+        }
+      })
+    })
+  }
+}
+
+
 export const login = (username, password, callback) => {
   return dispatch => {
     userService.login({
@@ -98,12 +128,9 @@ export const login = (username, password, callback) => {
   }
 }
 
-export const register = (username, password, callback) => {
+export const register = (params, callback) => {
   return dispatch => {
-    userService.register({
-      username: username,
-      password: password
-    }, res => {
+    userService.register(params, res => {
       if (res.status) {
         callback(res)
       }

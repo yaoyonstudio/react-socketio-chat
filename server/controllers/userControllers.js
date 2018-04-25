@@ -55,23 +55,31 @@ function decodeBase64Image (dataString) {
 
 userControllers = {
   getUsers: (req, res) => {
-    // 不分页
-    // User.find((err, users) => {
-    //   if (err) {
-    //     common.output(false, null, '请求失败')
-    //   } else {
-    //     res.send(common.output(true, users, '请求成功'))
-    //   }
-    // })
-
-    // 分页
-    let _page = parseInt(req.query.page, 10) || 1
-    let _limit = parseInt(req.query.limit, 10) || 10
-    User.paginate({}, { page: _page, limit: _limit}, (err, users) => {
+    jwt.verify(req.token, 'my_secret_key', (err, data) => {
       if (err) {
-        common.output(false, err, '请求失败')
+        // res.sendStatus(403);
+        res.json({
+          status: false,
+          msg: '授权不通过'
+        })
       } else {
-        res.send(common.output(true, users, '请求成功'))
+        console.log(req.query)
+
+        const _page = parseInt(req.query.page, 10) || 1
+        const _limit = parseInt(req.query.limit, 10) || 10
+        const _conditions = {}
+
+        if (req.query.keyword) {
+          _conditions['username'] = { $regex: new RegExp(req.query.keyword), $options: 'i'}
+        }
+
+        User.paginate(_conditions, { page: _page, limit: _limit}, (err, users) => {
+          if (err) {
+            res.send(common.output(false, {}, '查询失败'))
+          } else {
+            res.send(common.output(true, users, '查询成功'))
+          }
+        })
       }
     })
   },
