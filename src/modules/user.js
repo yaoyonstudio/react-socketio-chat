@@ -11,9 +11,11 @@ export const REGISTER = 'user/REGISTER'
 export const UPDATE_USER_AVATAR = 'user/UPDATE_USER_AVATAR'
 export const UPDATE_USER_PASSWORD = 'user/UPDATE_USER_PASSWORD'
 export const UPDATE_USER = 'user/UPDATE_USER'
+export const FIND_USERS = 'user/FIND_USERS'
 
 const initialState = {
   friends: [],
+  strangers: [],
   sessions: [],
   me: {
     _id: localStorage.getItem('_id') ? localStorage.getItem('_id') : '',
@@ -22,7 +24,7 @@ const initialState = {
     token: localStorage.getItem('token') ? localStorage.getItem('token') : '',
     avatar: localStorage.getItem('avatar') ? localStorage.getItem('avatar') : '/img/avatar.png',
     lat: getValue('lat') ? getValue('lat') : '',
-    lng: getValue('lng') ? getValue('lng') : ''
+    lng: getValue('lng') ? getValue('lng') : '',
   },
   friend: {}
 }
@@ -80,6 +82,12 @@ export default (state = initialState, action) => {
         me: {
           ...state.me
         }
+      }
+    case FIND_USERS:
+      console.log('查找用户信息：', action.payload.data)
+      return {
+        ...state,
+        strangers: state.strangers.concat(action.payload.data.docs)
       }
     default:
       return state;
@@ -246,6 +254,24 @@ export const updateUser = (id, params, token, callback) => {
         })
       }
       if (callback) callback(res)
+    })
+  }
+}
+
+export const getUsers = (token, callback) => {
+  return dispatch => {
+    userService.getUsers({
+      'authorization': 'Bearer ' + token
+    }, (res) => {
+      if (res.status) {
+        dispatch({
+          type: FIND_USERS,
+          payload: {
+            data: res.data
+          }
+        })
+      }
+      if (callback) callback(res.data)
     })
   }
 }

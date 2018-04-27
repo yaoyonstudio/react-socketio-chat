@@ -53,6 +53,46 @@ function decodeBase64Image (dataString) {
   return response;
 }
 
+function jsGetAge(strBirthday){         
+  var returnAge
+  var strBirthdayArr=strBirthday.split('-')
+  var birthYear = strBirthdayArr[0]
+  var birthMonth = strBirthdayArr[1]
+  var birthDay = strBirthdayArr[2]
+
+  d = new Date()
+  var nowYear = d.getFullYear()
+  var nowMonth = d.getMonth() + 1
+  var nowDay = d.getDate()
+
+  if (nowYear == birthYear) {
+    returnAge = 0 //同年 则为0岁
+  } else {
+    var ageDiff = nowYear - birthYear //年之差  
+    if(ageDiff > 0){  
+      if(nowMonth == birthMonth) {  
+        var dayDiff = nowDay - birthDay //日之差  
+        if(dayDiff < 0) {  
+          returnAge = ageDiff - 1
+        } else {  
+          returnAge = ageDiff
+        }
+      } else {  
+        var monthDiff = nowMonth - birthMonth //月之差  
+        if(monthDiff < 0)  
+        {  
+          returnAge = ageDiff - 1 
+        } else {  
+          returnAge = ageDiff 
+        }  
+      }  
+    } else {  
+      returnAge = -1 //返回-1 表示出生日期输入错误 晚于今天  
+    }
+  }
+  return returnAge //返回周岁年龄   
+}
+
 userControllers = {
   getUsers: (req, res) => {
     jwt.verify(req.token, 'my_secret_key', (err, data) => {
@@ -68,6 +108,16 @@ userControllers = {
         const _page = parseInt(req.query.page, 10) || 1
         const _limit = parseInt(req.query.limit, 10) || 10
         const _conditions = {}
+
+        // const query = User.find()
+        // query.$where(function () {
+        //   return this.comments.length === 10 || this.name.length === 5;
+        // })
+
+        // User.pre('find', (next) => {
+        //   console.log('pre')
+        // })
+
 
         if (req.query.keyword) {
           _conditions['username'] = { $regex: new RegExp(req.query.keyword), $options: 'i'}

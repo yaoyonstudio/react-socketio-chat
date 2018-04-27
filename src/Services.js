@@ -3,8 +3,8 @@ const apiUrl = 'http://localhost:9000'
 
 export const userService = {
   // 获取所有用户数据
-  getUsers (fn) {
-    Ajax.call(this, apiUrl + '/users', 'get', {}, null, fn)
+  getUsers (headers, fn) {
+    Ajax.call(this, apiUrl + '/users', 'get', headers, null, fn)
   },
   // 获取单个用户数据
   getUser (headers, params, fn) {
