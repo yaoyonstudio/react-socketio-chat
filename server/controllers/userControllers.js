@@ -2,6 +2,7 @@ const common = require('../utils/common')
 const User = require('../models/userModel')
 const Relation = require('../models/relationModel')
 const jwt = require('jsonwebtoken')
+const momont = require('moment')
 
 var env = process.env.NODE_ENV || 'development';
 var config = require('../config/config.json')[env];
@@ -123,10 +124,36 @@ userControllers = {
           _conditions['username'] = { $regex: new RegExp(req.query.keyword), $options: 'i'}
         }
 
+        // if (req.query.min_age || req.query.max_age) {
+        //   _conditions['birthday'] = {
+        //     $gte: momont(date).subtract(parseInt(max_age, 10), 'years'),
+        //     $lte: momont(date).subtract(parseInt(min_age, 10), 'years')
+        //   }
+        // }
+
         User.paginate(_conditions, { page: _page, limit: _limit}, (err, users) => {
           if (err) {
             res.send(common.output(false, {}, '查询失败'))
           } else {
+            let _users = []
+            users.docs.forEach(user => {
+              _users.push({
+                _id: user._id,
+                username: user.username,
+                avatar: baseImgPrefixer + user.avatar,
+                gender: user.gender,
+                lastlogin: user.lastlogin,
+                birthday: user.birthday,
+                province: user.province,
+                city: user.city,
+                district: user.district,
+                company: user.company,
+                job: user.job,
+                slogan: user.slogan,
+                interests: user.interests
+              })
+            });
+            users.docs = _users
             res.send(common.output(true, users, '查询成功'))
           }
         })

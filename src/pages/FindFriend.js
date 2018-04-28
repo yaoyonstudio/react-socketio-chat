@@ -6,7 +6,6 @@ import Cards, { Card } from 'react-swipe-card'
 
 import { getUsers } from '../modules/user';
 
-
 class FindFriend extends Component {
   constructor (props) {
     super(props)
@@ -35,19 +34,19 @@ class FindFriend extends Component {
     return (
       <div className="Container">
         <KTopbar back title="猿粪" bgcolor="#efefef" color="#666"></KTopbar>
-        <div className="Main AddFriend">
-          <section>
-            {this.props.strangers.map((item, index) => <p>dfdsf</p>)}
-            {/* <Cards onEnd={() => this.action('end')} className='master-root'>
+        <div className="Main AddFriend flex-c flex-c-b">
+          <section className="cardContainer">
+            <Cards onEnd={() => this.action('end')} className='master-root'>
               {this.props.strangers.map((item, index) => 
                 <Card
                   onSwipeLeft={() => this.action('swipe left')} 
                   onSwipeRight={() => this.action('swipe right')}
                   key={index}>
+                  <img src={item.avatar} alt={item.username} />
                   <h3>{item.username}</h3>
                 </Card>
               )}
-            </Cards> */}
+            </Cards>
           </section>
         </div>
       </div>
